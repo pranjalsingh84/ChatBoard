@@ -3,7 +3,7 @@
 * {
   font-family: Montserrat;
   box-sizing: border-box;
-  color: #333;
+  color: #630303;
 }
 
 body {
@@ -29,7 +29,7 @@ body {
   width: 0.5em;
 }
 *::-webkit-scrollbar-track-piece {
-  background: #ccc;
+  background: #ee7f7f;
 }
 *::-webkit-scrollbar-thumb {
   background-color: #888;

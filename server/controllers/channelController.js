@@ -43,3 +43,38 @@ exports.getAllChannels = async (req, res) => {
 
   res.json(channels);
 };
+
+
+
+
+// exports.deleteChannel = async (req, res) => {
+//   const { id } = req.params;
+
+//   const channel = await Channel.findById(id);
+
+//   if (!channel) {
+//     return res.status(404).json({ message: "Channel not found" });
+//   }
+
+//   await Channel.findByIdAndDelete(id);
+
+//   res.json({ message: "Channel deleted successfully" });
+// };
+
+
+//---------------------------------1--------------------------------------------------------------------------------
+
+
+// exports.deleteChannel = async (req, res) => {
+//   const { id } = req.params;
+//   console.log("🔥 Deleting channel with ID:", id);
+
+//   const channel = await Channel.findByIdAndDelete(id);
+//   if (!channel) {
+//     console.log("❌ Channel not found in DB");
+//     return res.status(404).json({ message: "Channel not found" });
+//   }
+
+//   console.log("✅ Channel deleted successfully");
+//   res.json({ message: "Channel deleted" });
+// };

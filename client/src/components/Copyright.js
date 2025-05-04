@@ -18,7 +18,7 @@ const Copyright = () => {
       <WhiteTextTypography variant='body2' align='center'>
         {"Built with "}
         {ReactEmoji.emojify("<3")}{" "}
-        <Link color='inherit' href='/'>
+        <Link color='inherit' href='/'  alt="images">
           PM
         </Link>{" "}
         {" © "}

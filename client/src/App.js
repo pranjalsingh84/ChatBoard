@@ -13,7 +13,7 @@ const App = () => {
   const setupSocket = () => {
     const token = localStorage.getItem("CC_Token");
     if (token && !socket) {
-      const newSocket = io("http://localhost:8000", {
+      const newSocket = io("http://localhost:3000", {
         query: {
           token: localStorage.getItem("CC_Token"),
         },

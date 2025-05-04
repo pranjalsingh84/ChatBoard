@@ -11,11 +11,14 @@
     "@testing-library/user-event": "^7.1.2",
     "axios": "^0.19.2",
     "chart.js": "^2.9.3",
+    "emoji-dictionary": "^1.0.12",
+    "emoji-mart": "^5.6.0",
     "emoji-picker-react": "^3.1.7",
     "react": "^16.13.1",
     "react-chartjs-2": "^2.9.0",
     "react-dom": "^16.13.1",
     "react-emoji": "^0.5.0",
+    "react-gauge-chart": "^0.5.1",
     "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.1",
     "react-scroll-to-bottom": "^2.0.0",
@@ -24,7 +27,7 @@
     "sweetalert2": "^9.13.1"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "SET NODE_OPTIONS=--openssl-legacy-provider && react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
