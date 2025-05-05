@@ -32,7 +32,7 @@ Currently uses [this](https://www.npmjs.com/package/sentiment) module that uses 
 
 ### Installation
 
-
+1. git clone https://github.com/pranjalsingh84/ChatBoard.git
 2. Go to project folder: `cd ChatBoard`
 3. Install dependencies: `npm i`
 
