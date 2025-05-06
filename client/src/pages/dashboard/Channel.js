@@ -332,7 +332,7 @@ const Channel = (props) => {
                     <IconButton onClick={sendMessage}>
                       <Icon>send</Icon>
                     </IconButton>
-                  </InputAdornment>
+u                       </InputAdornment>
                 ),
               }}
             />

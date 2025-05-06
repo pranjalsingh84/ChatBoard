@@ -344,7 +344,7 @@ div.MuiButtonBase-root.MuiListItem-root.channel.MuiListItem-gutters.MuiListItem-
   position: absolute;
   top: 0;
   width: 78vw;
-  height: 89.5vh;
+  height: 100.5vh;
   margin-top: 14vh;
   display: flex;
   flex-direction: column;
@@ -352,12 +352,20 @@ div.MuiButtonBase-root.MuiListItem-root.channel.MuiListItem-gutters.MuiListItem-
   align-items: center;
   background-color: #cccccc;
 }
+.copyright{
+  background-color: #cccccc;
+  position: relative;
+  display: inline-block;
+  width: 78vw;
+  height: 100.5vh;
+}
 
 .welcomeOuterContainer h1 {
   margin: 0;
 }
 
-.intro {
+
+.intro{
   width: 40%;
   text-align: center;
 }

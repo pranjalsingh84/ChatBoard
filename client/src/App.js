@@ -1,4 +1,6 @@
 import React from "react";
+// import VoiceToText from './components/VoiceToText';  
+
 import { BrowserRouter, Switch, Route, Redirect } from "react-router-dom";
 import io from "socket.io-client";
 
@@ -74,6 +76,12 @@ const App = () => {
       </Switch>
     </BrowserRouter>
   );
+ 
+
 };
+
+
+
+
 
 export default App;
