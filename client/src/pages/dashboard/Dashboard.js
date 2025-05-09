@@ -729,7 +729,7 @@
 
 
 //======================================updated ui ==========================================================
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   AppBar,
   CssBaseline,
@@ -822,22 +822,34 @@ const Dashboard = (props) => {
   const [currentChannel, setCurrentChannel] = useState(null);
   const [selectedProject, setSelectedProject] = useState("General Chat");
 
-  const projectOptions = ["General Chat", "Real-Time Chat App", "Sentiment Analysis", "Project Management"];
+  const projectOptions = [
+    "General Chat",
+    "Real-Time Chat App",
+    "Sentiment Analysis",
+    "Project Management",
+  ];
 
   const handleProjectChange = (event) => {
     setSelectedProject(event.target.value);
   };
 
-  const getUser = (userId) => {
+  const getUser = useCallback((userId) => {
     GET(
       `user/${userId}`,
       {},
       (response) => setUser(response.data),
       () => setTimeout(() => getUser(userId), 3000)
     );
-  };
+  }, []);
 
-  const getChannels = () => {
+  const loadCurrentChannel = useCallback((channelsList) => {
+    const channel = channelsList.find(
+      (channel) => channel._id === props.match.params.id
+    );
+    setCurrentChannel(channel || null);
+  }, [props.match.params.id]);
+
+  const getChannels = useCallback(() => {
     GET(
       "channel",
       {
@@ -849,14 +861,7 @@ const Dashboard = (props) => {
       },
       () => setTimeout(getChannels, 3000)
     );
-  };
-
-  const loadCurrentChannel = (channels) => {
-    const channel = channels.find(
-      (channel) => channel._id === props.match.params.id
-    );
-    setCurrentChannel(channel || null);
-  };
+  }, [loadCurrentChannel]);
 
   const logout = () => {
     localStorage.removeItem("CC_Token");
@@ -883,13 +888,13 @@ const Dashboard = (props) => {
         props.socket.off("newChannel");
       }
     };
-  }, []);
+  }, [getUser, getChannels, props.socket]);
 
   useEffect(() => {
     if (channels.length > 0) {
       loadCurrentChannel(channels);
     }
-  }, [props.match.params.id, channels]);
+  }, [channels, loadCurrentChannel]);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -897,8 +902,19 @@ const Dashboard = (props) => {
 
   const drawer = (
     <div>
-      <div className={classes.toolbar} style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "16px" }}>
-        <Link to="/dashboard" style={{ textDecoration: "none", color: "#fafbfc" }}>
+      <div
+        className={classes.toolbar}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          padding: "16px",
+        }}
+      >
+        <Link
+          to="/dashboard"
+          style={{ textDecoration: "none", color: "#fafbfc" }}
+        >
           <Typography variant="h5" style={{ fontWeight: 700 }}>
             ChatBoard <Icon>chat</Icon>
           </Typography>
@@ -983,7 +999,13 @@ const Dashboard = (props) => {
 
       <main className={classes.mainContent}>
         <Switch>
-          <Route exact path="/dashboard" render={() => <Welcome user={user} selectedProject={selectedProject} />} />
+          <Route
+            exact
+            path="/dashboard"
+            render={() => (
+              <Welcome user={user} selectedProject={selectedProject} />
+            )}
+          />
           <Route
             exact
             path="/channel/:id"

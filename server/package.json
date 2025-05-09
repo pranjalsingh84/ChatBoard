@@ -1,10 +1,11 @@
 {
   "name": "chatboard-server",
   "version": "1.0.0",
-  "description": "Chatboad Server: a real-time chat application with sentiment analysis",
+  "description": "Chatboard Server: a real-time chat application with sentiment analysis",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon"
+    "start": "node index.js",
+    "dev": "nodemon index.js"
   },
   "author": "Priyanka Madhwal",
   "license": "MIT",
