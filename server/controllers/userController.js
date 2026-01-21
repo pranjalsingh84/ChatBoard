@@ -13,22 +13,15 @@ exports.login = async (req, res) => {
       return res.status(400).json({ error: `User [${username}] doesn't exist` });
     }
 
-    // Compare password (correct way)
+    // Compare password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ error: "Password is incorrect" });
     }
 
-    // Check JWT secret
-    if (!process.env.JWT_SECRET) {
-      console.error("JWT_SECRET is missing in environment variables");
-      return res.status(500).json({ error: "Server configuration error (JWT_SECRET missing)" });
-    }
-
     // Generate token
     const token = await jwt.sign({ id: user.id }, process.env.JWT_SECRET);
 
-    // Success
     res.json({
       message: "Logged in successfully!",
       token,
