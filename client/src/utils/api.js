@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const apiBaseURL = "https://chatboard-zewg.onrender.com";
+const apiBaseURL = "https://chatboard-zewg.onrender.com/";
 
 export const GET = (url, header, callback, errorcallback) => {
   return axios
