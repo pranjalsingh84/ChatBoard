@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const jwt = require("jwt-then");
-var Sentiment = require("sentiment");
+const Sentiment = require("sentiment");
 
 const Message = mongoose.model("Message");
 const User = mongoose.model("User");
@@ -18,32 +18,46 @@ let sentiment = new Sentiment();
 
 sockets.init = (server) => {
   const ADMIN_ID = "admin";
-  const ADMIN_USERNAME = "";
+  const ADMIN_USERNAME = "Admin";
 
-  const io = require("socket.io")(server);
+  const io = require("socket.io")(server, {
+    cors: {
+      origin: "*",
+      methods: ["GET", "POST"],
+    },
+  });
 
+  // 🔐 SOCKET AUTH (Render + Production safe)
   io.use(async (socket, next) => {
     try {
-      const token = socket.handshake.query.token;
+      const token = socket.handshake.auth.token;   // FRONTEND se auth me token aayega
+      if (!token) return next(new Error("No token"));
+
       const payload = await jwt.verify(token, process.env.SECRET);
       socket.userId = payload.id;
       next();
-    } catch (err) {}
+    } catch (err) {
+      console.log("Socket auth error:", err.message);
+      next(new Error("Authentication error"));
+    }
   });
 
-  // When user connects
   io.on("connection", (socket) => {
-    // When user disconnects
-    socket.on("disconnect", async ({ channelId }) => {
+    console.log("User connected:", socket.userId);
+
+    // DISCONNECT
+    socket.on("disconnect", () => {
       const user = getCurrentUser(socket.userId);
       if (user) {
         socket.leave(user.channelId);
         userLeaves(socket.userId);
+
         const newMessage = {
           message: user.username + " left the channel!",
           username: ADMIN_USERNAME,
           userId: ADMIN_ID,
         };
+
         socket.broadcast.to(user.channelId).emit("newMessage", newMessage);
         io.to(user.channelId).emit("onlineUsers", {
           users: getOnlineUsersInChannel(user.channelId),
@@ -51,87 +65,72 @@ sockets.init = (server) => {
       }
     });
 
-    // When user joins a channel
+    // JOIN CHANNEL
     socket.on("joinChannel", async ({ username, channelId }) => {
       socket.join(channelId);
       userJoins(socket.userId, username, channelId);
+
       const newMessage = {
         message: username + " joined the channel!",
         username: ADMIN_USERNAME,
         userId: ADMIN_ID,
       };
+
       socket.broadcast.to(channelId).emit("newMessage", newMessage);
       io.to(channelId).emit("onlineUsers", {
         users: getOnlineUsersInChannel(channelId),
       });
     });
 
-    // When user leaves a channel
+    // LEAVE CHANNEL
     socket.on("leaveChannel", async ({ username, channelId }) => {
       socket.leave(channelId);
       userLeaves(socket.userId);
+
       const newMessage = {
         message: username + " left the channel!",
         username: ADMIN_USERNAME,
         userId: ADMIN_ID,
       };
+
       socket.broadcast.to(channelId).emit("newMessage", newMessage);
       io.to(channelId).emit("onlineUsers", {
         users: getOnlineUsersInChannel(channelId),
       });
     });
 
-    // When user creates a new channel
-    socket.on("newChannel", async ({ channelName }) => {
-      const channel = await Channel.findOne({ name: channelName });
-      if (channel) io.emit("newChannel", { channel });
-    });
-
-    // When user sends a new message
+    // NEW MESSAGE
     socket.on("newMessage", async ({ username, channelId, message }) => {
-      // Blank messages are ignored
-      if (message.trim().length > 0) {
-        const sentimentResult = sentiment.analyze(message);
+      if (message.trim().length === 0) return;
 
-        io.to(channelId).emit("newMessage", {
-          message,
-          username: username,
-          userId: socket.userId,
-          sentimentScore: sentimentResult.score,
-        });
+      const sentimentResult = sentiment.analyze(message);
 
-        const channel = await Channel.findOne({ _id: channelId });
+      io.to(channelId).emit("newMessage", {
+        message,
+        username,
+        userId: socket.userId,
+        sentimentScore: sentimentResult.score,
+      });
 
-        io.to(channelId).emit(
-          "updateSentiment",
-          getCurrentSentiment(channel, sentimentResult)
-        );
-        Channel.updateOne(
-          { _id: channelId },
-          {
-            $set: getCurrentSentiment(channel, sentimentResult),
-          },
-          function (err, affected, resp) {}
-        );
+      const channel = await Channel.findOne({ _id: channelId });
 
-        const user = await User.findOne({ _id: socket.userId });
-        User.updateOne(
-          { _id: socket.userId },
-          {
-            $set: getCurrentSentiment(user, sentimentResult),
-          },
-          function (err, affected, resp) {}
-        );
+      const sentimentData = getCurrentSentiment(channel, sentimentResult);
 
-        const newMessage = new Message({
-          channel: channelId,
-          user: socket.userId,
-          sentimentScore: sentimentResult.score,
-          message,
-        });
+      io.to(channelId).emit("updateSentiment", sentimentData);
 
-        await newMessage.save();
-      }
+      await Channel.updateOne({ _id: channelId }, { $set: sentimentData });
+
+      const user = await User.findOne({ _id: socket.userId });
+      await User.updateOne({ _id: socket.userId }, { $set: sentimentData });
+
+      const newMessage = new Message({
+        channel: channelId,
+        user: socket.userId,
+        sentimentScore: sentimentResult.score,
+        message,
+      });
+
+      await newMessage.save();
     });
   });
 };
