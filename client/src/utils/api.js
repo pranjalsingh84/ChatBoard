@@ -1,10 +1,26 @@
 import axios from "axios";
 
-const apiBaseURL = "https://chatboard-zewg.onrender.com/";
+// 🔴 Render backend base URL (NO localhost, NO trailing extra logic)
+const apiBaseURL = "https://chatboard-zewg.onrender.com";
 
-export const GET = (url, header, callback, errorcallback) => {
-  return axios
-    .get(`${apiBaseURL}${url}`, {
+// Axios instance
+const api = axios.create({
+  baseURL: apiBaseURL,
+});
+
+// Automatically attach token if available
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers.Authorization = "Bearer " + token;
+  }
+  return config;
+});
+
+// ================= GET =================
+export const GET = (url, header = {}, callback, errorcallback) => {
+  return api
+    .get(url, {
       headers: header,
     })
     .then((response) => {
@@ -15,9 +31,10 @@ export const GET = (url, header, callback, errorcallback) => {
     });
 };
 
-export const POST = (url, data, header, callback, errorcallback) => {
-  return axios
-    .post(`${apiBaseURL}${url}`, data, {
+// ================= POST =================
+export const POST = (url, data, header = {}, callback, errorcallback) => {
+  return api
+    .post(url, data, {
       headers: header,
     })
     .then((response) => {

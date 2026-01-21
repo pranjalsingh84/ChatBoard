@@ -1,6 +1,4 @@
 import React from "react";
-// import VoiceToText from './components/VoiceToText';  
-
 import { BrowserRouter, Switch, Route, Redirect } from "react-router-dom";
 import io from "socket.io-client";
 
@@ -9,26 +7,35 @@ import Authentication from "./pages/authentication/Authentication";
 import Dashboard from "./pages/dashboard/Dashboard";
 import NotFound from "./pages/404";
 
+// 🔴 Render backend socket URL
+const SOCKET_URL = "https://chatboard-zewg.onrender.com";
+
 const App = () => {
   const [socket, setSocket] = React.useState(null);
 
   const setupSocket = () => {
     const token = localStorage.getItem("CC_Token");
+
     if (token && !socket) {
-      const newSocket = io("http://localhost:3000", {
-        query: {
-          token: localStorage.getItem("CC_Token"),
+      const newSocket = io(SOCKET_URL, {
+        transports: ["websocket"],
+        auth: {
+          token: token,   // backend will read this
         },
       });
 
       newSocket.on("connect", () => {
-        //makeToast("success", "Socket Connected!");
+        console.log("✅ Socket connected:", newSocket.id);
       });
 
       newSocket.on("disconnect", () => {
+        console.log("❌ Socket disconnected");
         setSocket(null);
         setTimeout(setupSocket, 3000);
-        //makeToast("error", "Socket Disconnected!");
+      });
+
+      newSocket.on("connect_error", (err) => {
+        console.error("🔥 Socket connection error:", err.message);
       });
 
       setSocket(newSocket);
@@ -37,7 +44,7 @@ const App = () => {
 
   React.useEffect(() => {
     setupSocket();
-    //eslint-disable-next-line
+    // eslint-disable-next-line
   }, []);
 
   const ProtectedRoute = ({ component: Component, ...rest }) => {
@@ -61,10 +68,10 @@ const App = () => {
   return (
     <BrowserRouter>
       <Switch>
-        <Route exact path='/' component={Index} />
+        <Route exact path="/" component={Index} />
         <Route
           exact
-          path='/auth'
+          path="/auth"
           render={() => <Authentication setupSocket={setupSocket} />}
         />
         <ProtectedRoute
@@ -72,16 +79,10 @@ const App = () => {
           path={["/dashboard", "/channel/:id"]}
           component={Dashboard}
         />
-        <Route path='' component={NotFound} />
+        <Route path="" component={NotFound} />
       </Switch>
     </BrowserRouter>
   );
- 
-
 };
-
-
-
-
 
 export default App;
