@@ -7,8 +7,7 @@ import Authentication from "./pages/authentication/Authentication";
 import Dashboard from "./pages/dashboard/Dashboard";
 import NotFound from "./pages/404";
 
-// 🔴 Render backend socket URL
-const SOCKET_URL = "https://chatboard-zewg.onrender.com";
+const SOCKET_URL = "https://chatboard-zewg.onrender.com"; // 🔥 Render backend URL
 
 const App = () => {
   const [socket, setSocket] = React.useState(null);
@@ -18,24 +17,20 @@ const App = () => {
 
     if (token && !socket) {
       const newSocket = io(SOCKET_URL, {
-        transports: ["websocket"],
-        auth: {
-          token: token,   // backend will read this
+        query: {
+          token: token,
         },
+        transports: ["websocket"], // 🔥 important for Render
       });
 
       newSocket.on("connect", () => {
-        console.log("✅ Socket connected:", newSocket.id);
+        console.log("✅ Socket Connected:", newSocket.id);
       });
 
       newSocket.on("disconnect", () => {
-        console.log("❌ Socket disconnected");
+        console.log("❌ Socket Disconnected");
         setSocket(null);
         setTimeout(setupSocket, 3000);
-      });
-
-      newSocket.on("connect_error", (err) => {
-        console.error("🔥 Socket connection error:", err.message);
       });
 
       setSocket(newSocket);
