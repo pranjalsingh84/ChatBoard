@@ -1,5 +1,7 @@
 import axios from "axios";
-const apiBaseURL = "http://localhost:3000";
+
+// Render backend URL
+const apiBaseURL = "https://chatboard-zewg.onrender.com";
 
 export const GET = (url, header, callback, errorcallback) => {
   return axios
@@ -26,6 +28,3 @@ export const POST = (url, data, header, callback, errorcallback) => {
       if (errorcallback) errorcallback(err);
     });
 };
-
-
-
