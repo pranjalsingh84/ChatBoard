@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const User = mongoose.model("User");   // ✅ VERY IMPORTANT LINE
-const bcrypt = require("bcryptjs");
+const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 // ================= LOGIN =================
